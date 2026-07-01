@@ -1,0 +1,29 @@
+aws_region = "ap-south-1"
+
+environment = "dev"
+
+vpc_name = "production-vpc"
+
+private_subnet_tag = "private-*"
+
+alb_name = "production-alb"
+
+alb_security_group_id = "sg-0123456789abcdef0"
+
+cluster_name = "micro-cluster"
+
+service_name = "micro-service"
+
+task_family = "micro-task"
+
+container_name = "micro-deploy"
+
+container_port = 8080
+
+cpu = 256
+
+memory = 512
+
+desired_count = 2
+
+log_retention_days = 30

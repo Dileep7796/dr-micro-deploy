@@ -1,0 +1,14 @@
+{
+  "name": "micro-deploy",
+  "version": "1.0.0",
+  "description": "Production Ready NodeJS Application",
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

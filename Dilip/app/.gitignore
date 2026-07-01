@@ -1,0 +1,17 @@
+node_modules/
+
+.env
+
+coverage/
+
+npm-debug.log
+
+terraform.tfstate
+
+terraform.tfstate.backup
+
+.terraform/
+
+*.tfvars
+
+.DS_Store
