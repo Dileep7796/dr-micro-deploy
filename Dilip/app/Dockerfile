@@ -1,6 +1,6 @@
 
 
-FROM node:22-alpine AS builde
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 
-FROM node:22-alpin
+FROM node:22-alpine
 
 LABEL maintainer="Teja"
 
@@ -20,7 +20,7 @@ WORKDIR /app
 RUN addgroup -S nodegroup && \
     adduser -S nodeuser -G nodegroup
 
-COPY --from=builder /app .
+COPY --from=builder --chown=nodeuser:nodegroup /app .
 
 USER nodeuser
 

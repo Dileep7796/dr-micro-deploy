@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "this" {
 
       name = var.container_name
 
-      image = "${aws_ecr_repository.app.repository_url}:latest"
+      image = "${aws_ecr_repository.app.repository_url}:${var.image_tag}"
 
       essential = true
 
@@ -133,6 +133,66 @@ resource "aws_ecs_task_definition" "this" {
   tags = {
 
     Name = var.task_family
+
+  }
+
+}
+
+#############################################
+# ECS Service
+#############################################
+# Runs the task definition on Fargate and registers tasks with the
+# target group that's attached to the existing ALB (see loadbalancer.tf).
+
+resource "aws_ecs_service" "this" {
+
+  name = var.service_name
+
+  cluster = aws_ecs_cluster.this.id
+
+  task_definition = aws_ecs_task_definition.this.arn
+
+  desired_count = var.desired_count
+
+  launch_type = "FARGATE"
+
+  network_configuration {
+
+    subnets = data.aws_subnets.private.ids
+
+    security_groups = [aws_security_group.ecs.id]
+
+    assign_public_ip = false
+
+  }
+
+  load_balancer {
+
+    target_group_arn = aws_lb_target_group.app.arn
+
+    container_name = var.container_name
+
+    container_port = var.container_port
+
+  }
+
+  deployment_minimum_healthy_percent = 100
+
+  deployment_maximum_percent = 200
+
+  depends_on = [aws_lb_listener_rule.app]
+
+  lifecycle {
+    # The CI/CD pipeline registers new task definition revisions and updates
+    # the running service directly via `amazon-ecs-deploy-task-definition`.
+    # Ignoring drift here keeps `terraform apply` from reverting a live
+    # deployment back to the revision Terraform originally created.
+    ignore_changes = [task_definition]
+  }
+
+  tags = {
+
+    Name = var.service_name
 
   }
 
