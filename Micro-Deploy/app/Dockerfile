@@ -13,7 +13,7 @@ COPY . .
 
 FROM node:22-alpine
 
-LABEL maintainer="Teja"
+LABEL maintainer="Dil"
 
 WORKDIR /app
 
