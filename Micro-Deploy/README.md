@@ -123,21 +123,31 @@ terraform apply
 
 ## Architectural Choices & Tradeoffs
 
-The ALB and VPC are treated as pre-existing (per the assignment), so Terraform only looks them up via data sources and creates a target group + listener rule to attach this service to the existing listener, rather than provisioning any networking. The ECS service ignores drift on `task_definition` (see `ecs.tf`) because the CI/CD pipeline updates the running task definition directly via `amazon-ecs-deploy-task-definition` — without that, a routine `terraform apply` would revert a live deployment back to the image tag Terraform originally applied. Given the time box, this doesn't include autoscaling, blue/green deployments, or a remote Terraform backend (state is local) — see Improvements below for what a production version would add. The CI/CD pipeline's deploy job assumes an `AWS_ROLE` OIDC secret is configured; without it, that job will fail, which is expected for a repo without live AWS credentials wired up.
+The ALB and VPC are treated as pre-existing (per the assignment), so Terraform only looks them up via data sources and creates a target group + listener rule to attach this service to the existing listener, rather than provisioning any networking. The ECS service ignores drift on `task_definition` (see `ecs.tf`) because the CI/CD pipeline updates the running task definition directly via `amazon-ecs-deploy-task-definition` — without that, a routine `terraform apply` would revert a live deployment back to the image tag Terraform originally applied. Given the time box, this doesn't include autoscaling, blue/green deployments, or a remote Terraform backend (state is local) — see Improvements below for what a production version would add. The CI/CD pipeline's deploy job assumes an `AWS_ROLE_ARN` OIDC secret is configured; without it, that job will fail, which is expected for a repo without live AWS credentials wired up.
 
 ---
 
 ## GitHub Actions
 
-On every push to main:
-
+### Workflow: Docker Build (`docker-build.yml`)
+Triggers on changes to `app/**`:
 - Install dependencies
-- Validate Terraform
+- Run unit tests
 - Build Docker Image
 - Scan Image
 - Push to ECR
-- Update ECS Task
-- Deploy ECS
+
+### Workflow: Terraform Deploy (`terraform-deploy.yml`)
+Triggers on changes to `terraform/**`:
+- Validate Terraform config
+- Plan infrastructure changes
+- Apply infrastructure
+
+### Workflow: ECS Deploy (`ecs-deploy.yml`)
+Triggers after successful Docker build:
+- Update ECS Task Definition
+- Deploy to ECS Fargate
+- Wait for service stability
 
 ---
 
