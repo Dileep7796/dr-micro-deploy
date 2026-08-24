@@ -7,15 +7,10 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-
   ECR_REPOSITORY: micro-deploy
-
   ECS_CLUSTER: micro-cluster
-
   ECS_SERVICE: micro-service
-
   ECS_TASK_DEFINITION: micro-task
-
   CONTAINER_NAME: micro-deploy
 
 permissions:
@@ -76,7 +71,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
 
@@ -130,13 +125,10 @@ jobs:
 
     steps:
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
 
